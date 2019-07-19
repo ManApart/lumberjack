@@ -27,7 +27,9 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 // The value here should match an entry in the META-INF/mods.toml file
 @Mod("lumberjack")
@@ -73,7 +75,7 @@ public class Lumberjack {
 
     private void fellLogs(BlockPos sourcePosition, IWorld world, ItemStack tool) {
         ArrayList<BlockPos> open = new ArrayList<>();
-        ArrayList<BlockPos> closed = new ArrayList<>();
+        HashSet<BlockPos> closed = new HashSet<>();
 
         open.add(sourcePosition);
 
@@ -84,14 +86,18 @@ public class Lumberjack {
                 closed.add(currentPosition);
 
                 BlockState currentState = world.getBlockState(currentPosition);
-                open.addAll(getNeighbors(currentPosition, world));
+                if (isLog(currentState.getBlock())) {
+                    open.addAll(getLogNeighbors(currentPosition, world));
+                } else {
+                    open.addAll(getLeafNeighbors(currentPosition, world));
+                }
                 dropBlock(world, currentPosition, currentState, tool);
             }
         }
     }
 
-    private ArrayList<BlockPos> getNeighbors(BlockPos position, IWorld world) {
-        ArrayList<BlockPos> neighbors = new ArrayList<>();
+    private HashSet<BlockPos> getLeafNeighbors(BlockPos position, IWorld world) {
+        HashSet<BlockPos> neighbors = new HashSet<>();
 
         BlockPos up = position.up();
         addLogsAndLeaves(neighbors, world, up);
@@ -102,8 +108,28 @@ public class Lumberjack {
 
         return neighbors;
     }
+    private HashSet<BlockPos> getLogNeighbors(BlockPos position, IWorld world) {
+        HashSet<BlockPos> neighbors = new HashSet<>();
 
-    private void addLogsAndLeaves(ArrayList<BlockPos> neighbors, IWorld world, BlockPos position) {
+        BlockPos up = position.up();
+        addLogsAndLeaves(neighbors, world, up);
+        addLogsAndLeaves(neighbors, world, up.north());
+        addLogsAndLeaves(neighbors, world, up.north().north());
+        addLogsAndLeaves(neighbors, world, up.north().west());
+        addLogsAndLeaves(neighbors, world, up.north().east());
+        addLogsAndLeaves(neighbors, world, up.south());
+        addLogsAndLeaves(neighbors, world, up.south().south());
+        addLogsAndLeaves(neighbors, world, up.south().west());
+        addLogsAndLeaves(neighbors, world, up.south().east());
+        addLogsAndLeaves(neighbors, world, up.west());
+        addLogsAndLeaves(neighbors, world, up.west().west());
+        addLogsAndLeaves(neighbors, world, up.east());
+        addLogsAndLeaves(neighbors, world, up.east().east());
+
+        return neighbors;
+    }
+
+    private void addLogsAndLeaves(HashSet<BlockPos> neighbors, IWorld world, BlockPos position) {
         BlockState state = world.getBlockState(position);
         Block currentBlock = state.getBlock();
         if (isLog(currentBlock) || isLeaves(currentBlock)) {
