@@ -74,67 +74,25 @@ public class Lumberjack {
 
 
     private void fellLogs(BlockPos sourcePosition, IWorld world, ItemStack tool) {
-        ArrayList<BlockPos> open = new ArrayList<>();
-        HashSet<BlockPos> closed = new HashSet<>();
+        ColumnFinder finder = new ColumnFinder(sourcePosition, world);
+        ArrayList<BlockPos> columns = finder.findColumns();
+        chopColumns(columns, 1, world, tool);
+    }
 
-        open.add(sourcePosition);
+    private void chopColumns(ArrayList<BlockPos> columns, int y, IWorld world, ItemStack tool) {
+        boolean atLeastOneBlockHarvested = false;
+        for (BlockPos column : columns) {
+            BlockPos pos = column.add(0, y, 0);
+            BlockState blockState = world.getBlockState(pos);
+            Block block = blockState.getBlock();
 
-        while (open.size() > 0) {
-            BlockPos currentPosition = open.get(open.size() - 1);
-            open.remove(currentPosition);
-            if (!closed.contains(currentPosition)) {
-                closed.add(currentPosition);
-
-                BlockState currentState = world.getBlockState(currentPosition);
-                if (isLog(currentState.getBlock())) {
-                    open.addAll(getLogNeighbors(currentPosition, world));
-                } else {
-                    open.addAll(getLeafNeighbors(currentPosition, world));
-                }
-                dropBlock(world, currentPosition, currentState, tool);
+            if (isLog(block) || isLeaves(block)) {
+                dropBlock(world, pos, blockState, tool);
+                atLeastOneBlockHarvested = true;
             }
         }
-    }
-
-    private HashSet<BlockPos> getLeafNeighbors(BlockPos position, IWorld world) {
-        HashSet<BlockPos> neighbors = new HashSet<>();
-
-        BlockPos up = position.up();
-        addLogsAndLeaves(neighbors, world, up);
-        addLogsAndLeaves(neighbors, world, up.north());
-        addLogsAndLeaves(neighbors, world, up.south());
-        addLogsAndLeaves(neighbors, world, up.west());
-        addLogsAndLeaves(neighbors, world, up.east());
-
-        return neighbors;
-    }
-
-    private HashSet<BlockPos> getLogNeighbors(BlockPos position, IWorld world) {
-        HashSet<BlockPos> neighbors = new HashSet<>();
-
-        BlockPos up = position.up();
-        addLogsAndLeaves(neighbors, world, up);
-        addLogsAndLeaves(neighbors, world, up.north());
-        addLogsAndLeaves(neighbors, world, up.north().north());
-        addLogsAndLeaves(neighbors, world, up.north().west());
-        addLogsAndLeaves(neighbors, world, up.north().east());
-        addLogsAndLeaves(neighbors, world, up.south());
-        addLogsAndLeaves(neighbors, world, up.south().south());
-        addLogsAndLeaves(neighbors, world, up.south().west());
-        addLogsAndLeaves(neighbors, world, up.south().east());
-        addLogsAndLeaves(neighbors, world, up.west());
-        addLogsAndLeaves(neighbors, world, up.west().west());
-        addLogsAndLeaves(neighbors, world, up.east());
-        addLogsAndLeaves(neighbors, world, up.east().east());
-
-        return neighbors;
-    }
-
-    private void addLogsAndLeaves(HashSet<BlockPos> neighbors, IWorld world, BlockPos position) {
-        BlockState state = world.getBlockState(position);
-        Block currentBlock = state.getBlock();
-        if (isLog(currentBlock) || isLeaves(currentBlock)) {
-            neighbors.add(position);
+        if (atLeastOneBlockHarvested) {
+            chopColumns(columns, y + 1, world, tool);
         }
     }
 
@@ -146,14 +104,10 @@ public class Lumberjack {
             List<ItemStack> drops = state.getDrops(lootContext);
             world.removeBlock(pos, false);
 
-            if (shouldDropItems(drops)) {
+            if (drops.size() >= 1) {
                 dropItems(world, pos, drops);
             }
         }
-    }
-
-    private boolean shouldDropItems(List<ItemStack> drops) {
-        return drops.size() >= 1;
     }
 
     private void dropItems(IWorld world, BlockPos pos, List<ItemStack> drops) {
