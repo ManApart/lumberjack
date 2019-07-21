@@ -52,11 +52,11 @@ public class Lumberjack {
         }
     }
 
-    private boolean isLog(Block block) {
+    boolean isLog(Block block) {
         return isType(block, "log");
     }
 
-    private boolean isLeaves(Block block) {
+    boolean isLeaves(Block block) {
         return isType(block, "leaves");
     }
 
