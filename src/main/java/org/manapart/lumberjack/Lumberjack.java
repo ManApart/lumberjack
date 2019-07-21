@@ -52,15 +52,15 @@ public class Lumberjack {
         }
     }
 
-    boolean isLog(Block block) {
+    public static boolean isLog(Block block) {
         return isType(block, "log");
     }
 
-    boolean isLeaves(Block block) {
+    public static boolean isLeaves(Block block) {
         return isType(block, "leaves");
     }
 
-    private boolean isType(Block block, String type) {
+    private static boolean isType(Block block, String type) {
         if (block.getRegistryName() != null) {
             return block.getRegistryName().getPath().toLowerCase().contains(type);
         }
@@ -108,6 +108,7 @@ public class Lumberjack {
 
         return neighbors;
     }
+
     private HashSet<BlockPos> getLogNeighbors(BlockPos position, IWorld world) {
         HashSet<BlockPos> neighbors = new HashSet<>();
 
