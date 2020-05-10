@@ -58,7 +58,7 @@ public class Lumberjack {
 
     private boolean shouldFellTrees(PlayerEntity player) {
         Item item = player.getHeldItemMainhand().getItem();
-        return !player.isSneaking() && item.getToolTypes(player.getHeldItemMainhand()).contains(ToolType.AXE);
+        return !player.isCrouching() && item.getToolTypes(player.getHeldItemMainhand()).contains(ToolType.AXE);
     }
 
 
