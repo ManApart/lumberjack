@@ -1,6 +1,5 @@
-modLoader="javafml" #mandatory
-loaderVersion="[26,)" #mandatory (26 is current forge version)
-issueTrackerURL="http://my.issue.tracker/" #optional
+modLoader="javafml"
+loaderVersion="[26,)"
 license="Creative Commons Attribution-NonCommercial-NoDerivatives 4.0"
 
 [[mods]]
@@ -11,11 +10,11 @@ license="Creative Commons Attribution-NonCommercial-NoDerivatives 4.0"
     description='''
     Cut entire trees with one fell swoop
     '''
-    credits="Trees collapse when chopped down" #optional
+    credits="Trees collapse when chopped down"
 
-[[dependencies.examplemod]] #optional
-    modId="forge" #mandatory
-    mandatory=true #mandatory
+[[dependencies.lumberjack]]
+    modId="forge"
+    mandatory=true
     versionRange="[35.1.10,)"
     ordering="NONE"
     side="BOTH"
