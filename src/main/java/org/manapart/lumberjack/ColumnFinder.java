@@ -32,7 +32,7 @@ public class ColumnFinder {
 
         for (int x = 0; x < DIAMETER; x++) {
             for (int z = 0; z < DIAMETER; z++) {
-                BlockPos pos = source.add(x - RADIUS, 0, z - RADIUS);
+                BlockPos pos = source.offset(x - RADIUS, 0, z - RADIUS);
                 Block block = world.getBlockState(pos).getBlock();
                 boolean isLog = Lumberjack.isLog(block);
                 baseBlocks[x][z] = new BaseBlock(x, z, pos.getX(), pos.getZ(), isLog);

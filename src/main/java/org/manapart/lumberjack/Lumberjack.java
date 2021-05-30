@@ -6,11 +6,12 @@ import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.loot.LootContext;
+import net.minecraft.loot.LootParameters;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.IWorld;
+import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraft.world.storage.loot.LootContext;
-import net.minecraft.world.storage.loot.LootParameters;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.ToolType;
 import net.minecraftforge.event.world.BlockEvent;
@@ -36,7 +37,7 @@ public class Lumberjack {
         if (shouldFellTrees(event.getPlayer())) {
             if (isLog(block)) {
                 System.out.println(event.getPlayer().getName() + " broke " + block + " at " + pos);
-                fellLogs(pos, event.getWorld(), event.getPlayer().getHeldItemMainhand());
+                fellLogs(pos, event.getWorld(), event.getPlayer().getMainHandItem());
             }
         }
     }
@@ -57,8 +58,8 @@ public class Lumberjack {
     }
 
     private boolean shouldFellTrees(PlayerEntity player) {
-        Item item = player.getHeldItemMainhand().getItem();
-        return !player.isCrouching() && item.getToolTypes(player.getHeldItemMainhand()).contains(ToolType.AXE);
+        Item item = player.getMainHandItem().getItem();
+        return !player.isCrouching() && item.getToolTypes(player.getMainHandItem()).contains(ToolType.AXE);
     }
 
 
@@ -71,7 +72,7 @@ public class Lumberjack {
     private void chopColumns(ArrayList<BlockPos> columns, int y, IWorld world, ItemStack tool) {
         boolean atLeastOneBlockHarvested = false;
         for (BlockPos column : columns) {
-            BlockPos pos = column.add(0, y, 0);
+            BlockPos pos = column.offset(0, y, 0);
             BlockState blockState = world.getBlockState(pos);
             Block block = blockState.getBlock();
 
@@ -89,7 +90,7 @@ public class Lumberjack {
         if (world instanceof ServerWorld) {
             LootContext.Builder lootContext = new LootContext.Builder((ServerWorld) world);
             lootContext.withParameter(LootParameters.TOOL, tool);
-            lootContext.withParameter(LootParameters.POSITION, pos);
+//            lootContext.withParameter(LootParameters.POSITION, pos);
             List<ItemStack> drops = state.getDrops(lootContext);
             world.removeBlock(pos, false);
 
@@ -102,8 +103,9 @@ public class Lumberjack {
     private void dropItems(IWorld world, BlockPos pos, List<ItemStack> drops) {
         for (ItemStack i : drops) {
             if (i != null) {
-                ItemEntity dropItem = new ItemEntity(world.getWorld(), (double) pos.getX() + 0.5D, (double) pos.getY() + 0.5D, (double) pos.getZ() + 0.5D, i);
-                world.addEntity(dropItem);
+                ItemEntity dropItem = new ItemEntity((World) world, (double) pos.getX() + 0.5D, (double) pos.getY() + 0.5D, (double) pos.getZ() + 0.5D, i);
+//                ItemEntity dropItem = new ItemEntity(world.getWorld(), (double) pos.getX() + 0.5D, (double) pos.getY() + 0.5D, (double) pos.getZ() + 0.5D, i);
+                world.addFreshEntity(dropItem);
             }
         }
     }
