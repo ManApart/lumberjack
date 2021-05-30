@@ -9,6 +9,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootContext;
 import net.minecraft.loot.LootParameters;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.vector.Vector3d;
 import net.minecraft.world.IWorld;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
@@ -90,7 +91,8 @@ public class Lumberjack {
         if (world instanceof ServerWorld) {
             LootContext.Builder lootContext = new LootContext.Builder((ServerWorld) world);
             lootContext.withParameter(LootParameters.TOOL, tool);
-//            lootContext.withParameter(LootParameters.POSITION, pos);
+            Vector3d origin = Vector3d.atCenterOf(pos);
+            lootContext.withParameter(LootParameters.ORIGIN, origin);
             List<ItemStack> drops = state.getDrops(lootContext);
             world.removeBlock(pos, false);
 
