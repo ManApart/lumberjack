@@ -1,6 +1,7 @@
 modLoader="javafml"
 loaderVersion="[26,)"
 license="Creative Commons Attribution-NonCommercial-NoDerivatives 4.0"
+issueTrackerURL="https://github.com/ManApart/Lumberjack/issues"
 
 [[mods]]
     modId="lumberjack"
