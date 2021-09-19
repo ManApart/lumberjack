@@ -3,30 +3,32 @@ package org.manapart.lumberjack
 import net.minecraft.util.math.BlockPos
 import net.minecraft.world.IWorld
 
+private const val RADIUS = 5
+private const val DIAMETER = RADIUS * 2 + 1
+
 class ColumnFinder(private val source: BlockPos, private val world: IWorld) {
     fun findColumns(): ArrayList<BlockPos> {
-        val baseBlocks = baseBlocks
+        val baseBlocks = getBaseBlocks()
         denoteTrunks(baseBlocks)
         denoteHarvestableBlocks(baseBlocks)
         return filterHarvestable(baseBlocks)
     }
 
-    private val baseBlocks: Array<Array<BaseBlock?>>
-        private get() {
-            val baseBlocks = Array(DIAMETER) { arrayOfNulls<BaseBlock>(DIAMETER) }
-            for (x in 0 until DIAMETER) {
-                for (z in 0 until DIAMETER) {
-                    val pos = source.offset(x - RADIUS, 0, z - RADIUS)
-                    val block = world.getBlockState(pos).block
-                    val isLog = isLog(block)
-                    baseBlocks[x][z] = BaseBlock(x, z, pos.x, pos.z, isLog)
-                    if (!isLog) {
-                        baseBlocks[x][z]!!.isTrunk = false
-                    }
+    private fun getBaseBlocks(): Array<Array<BaseBlock?>> {
+        val baseBlocks = Array(DIAMETER) { arrayOfNulls<BaseBlock>(DIAMETER) }
+        for (x in 0 until DIAMETER) {
+            for (z in 0 until DIAMETER) {
+                val pos = source.offset(x - RADIUS, 0, z - RADIUS)
+                val block = world.getBlockState(pos).block
+                val isLog = isLog(block)
+                baseBlocks[x][z] = BaseBlock(x, z, pos.x, pos.z, isLog)
+                if (!isLog) {
+                    baseBlocks[x][z]!!.isTrunk = false
                 }
             }
-            return baseBlocks
         }
+        return baseBlocks
+    }
 
     private fun denoteTrunks(baseBlocks: Array<Array<BaseBlock?>>) {
         val open = ArrayList<BaseBlock?>()
@@ -49,11 +51,7 @@ class ColumnFinder(private val source: BlockPos, private val world: IWorld) {
     }
 
     private fun getBaseBlock(x: Int, z: Int, baseBlocks: Array<Array<BaseBlock?>>): BaseBlock? {
-        return if (x > 0 && z > 0 && x < DIAMETER && z < DIAMETER) {
-            baseBlocks[x][z]
-        } else {
-            null
-        }
+        return if (x > 0 && z > 0 && x < DIAMETER && z < DIAMETER) baseBlocks[x][z] else null
     }
 
     private fun denoteHarvestableBlocks(baseBlocks: Array<Array<BaseBlock?>>) {
@@ -63,24 +61,26 @@ class ColumnFinder(private val source: BlockPos, private val world: IWorld) {
         for (x in 0 until DIAMETER) {
             for (z in 0 until DIAMETER) {
                 val block = baseBlocks[x][z]
-                if (block!!.isTree) {
-                    if (block.isTrunk) {
-                        trunks.add(block)
+                if (block != null) {
+                    if (block.isTree) {
+                        if (block.isTrunk) {
+                            trunks.add(block)
+                        } else {
+                            neighbors.add(block)
+                        }
                     } else {
-                        neighbors.add(block)
+                        bufferBlocks.add(block)
                     }
-                } else {
-                    bufferBlocks.add(block)
                 }
             }
         }
         for (block in bufferBlocks) {
             if (neighbors.isEmpty()) {
-                block!!.isHarvestable = true
+                block!!.setHarvestable(true)
             } else {
                 val trunkDistance = getMinDistance(block, trunks)
                 val neighborDistance = getMinDistance(block, neighbors)
-                block!!.isHarvestable = trunkDistance <= neighborDistance
+                block!!.setHarvestable(trunkDistance <= neighborDistance)
             }
         }
     }
@@ -100,7 +100,7 @@ class ColumnFinder(private val source: BlockPos, private val world: IWorld) {
         val positions = ArrayList<BlockPos>()
         for (blocks in baseBlocks) {
             for (block in blocks) {
-                if (block!!.isHarvestable) {
+                if (block!!.shouldHarvest()) {
                     positions.add(BlockPos(block.worldX, source.y, block.worldZ))
                 }
             }
@@ -108,8 +108,4 @@ class ColumnFinder(private val source: BlockPos, private val world: IWorld) {
         return positions
     }
 
-    companion object {
-        private const val RADIUS = 5
-        private const val DIAMETER = RADIUS * 2 + 1
-    }
 }

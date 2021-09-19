@@ -15,31 +15,29 @@ import net.minecraft.world.server.ServerWorld
 import net.minecraftforge.common.ToolType
 import net.minecraftforge.event.world.BlockEvent.BreakEvent
 import net.minecraftforge.fml.common.Mod
+import org.apache.logging.log4j.LogManager
 import thedarkcolour.kotlinforforge.forge.FORGE_BUS
 
-// The value here should match an entry in the META-INF/mods.toml file
 @Mod("lumberjack")
 object Lumberjack {
+    private val log = LogManager.getLogger()
 
     init {
         FORGE_BUS.addListener(::onBreak)
     }
 
     private fun onBreak(event: BreakEvent) {
-        println("On Break")
         val block = event.state.block
-        val pos = event.pos
         if (shouldFellTrees(event.player)) {
             if (isLog(block)) {
-                println(event.player.name.toString() + " broke " + block + " at " + pos)
-                fellLogs(pos, event.world, event.player.mainHandItem)
+                log.info(event.player.name.contents.toString() + " broke " + block + " at " + event.pos)
+                fellLogs(event.pos, event.world, event.player.mainHandItem)
             }
         }
     }
 
     private fun shouldFellTrees(player: PlayerEntity): Boolean {
-        val item = player.mainHandItem.item
-        return !player.isCrouching && item.getToolTypes(player.mainHandItem).contains(ToolType.AXE)
+        return !player.isCrouching && player.mainHandItem.item.getToolTypes(player.mainHandItem).contains(ToolType.AXE)
     }
 
     private fun fellLogs(sourcePosition: BlockPos, world: IWorld, tool: ItemStack) {
@@ -66,25 +64,23 @@ object Lumberjack {
 
     private fun dropBlock(world: IWorld, pos: BlockPos, state: BlockState, tool: ItemStack) {
         if (world is ServerWorld) {
-            val lootContext = LootContext.Builder(world)
-            lootContext.withParameter(LootParameters.TOOL, tool)
             val origin = Vector3d.atCenterOf(pos)
-            lootContext.withParameter(LootParameters.ORIGIN, origin)
-            val drops = state.getDrops(lootContext)
+            val lootContext = LootContext.Builder(world)
+                .withParameter(LootParameters.TOOL, tool)
+                .withParameter(LootParameters.ORIGIN, origin)
+
+            val drops = state.getDrops(lootContext).filterNotNull()
             world.removeBlock(pos, false)
-            if (drops.size >= 1) {
+            if (drops.isNotEmpty()) {
                 dropItems(world, pos, drops)
             }
         }
     }
 
-    private fun dropItems(world: IWorld, pos: BlockPos, drops: List<ItemStack?>) {
-        for (i in drops) {
-            if (i != null) {
-                val dropItem = ItemEntity(world as World, pos.x.toDouble() + 0.5, pos.y.toDouble() + 0.5, pos.z.toDouble() + 0.5, i)
-                //                ItemEntity dropItem = new ItemEntity(world.getWorld(), (double) pos.getX() + 0.5D, (double) pos.getY() + 0.5D, (double) pos.getZ() + 0.5D, i);
-                world.addFreshEntity(dropItem)
-            }
+    private fun dropItems(world: IWorld, pos: BlockPos, drops: List<ItemStack>) {
+        drops.forEach { drop ->
+            val dropItem = ItemEntity(world as World, pos.x.toDouble() + 0.5, pos.y.toDouble() + 0.5, pos.z.toDouble() + 0.5, drop)
+            world.addFreshEntity(dropItem)
         }
     }
 

@@ -1,13 +1,23 @@
 package org.manapart.lumberjack
 
+import kotlin.math.pow
+import kotlin.math.sqrt
+
 class BaseBlock(val localX: Int, val localZ: Int, val worldX: Int, val worldZ: Int, val isTree: Boolean) {
     var isTrunk = false
-    var isHarvestable = false
-        get() = if (isTrunk) {
-            true
-        } else field
+    private var isHarvestable = false
+
+    fun setHarvestable(harvestable: Boolean){
+        this.isHarvestable = harvestable
+    }
+
+    fun shouldHarvest(): Boolean {
+        return isTrunk || isHarvestable
+    }
 
     fun getDistance(other: BaseBlock): Int {
-        return Math.sqrt(Math.pow((worldX - other.worldX).toDouble(), 2.0) + Math.pow((worldZ - other.worldZ).toDouble(), 2.0)).toInt()
+        val xDist = (worldX - other.worldX).toDouble().pow(2.0)
+        val yDist = (worldZ - other.worldZ).toDouble().pow(2.0)
+        return sqrt(xDist + yDist).toInt()
     }
 }
