@@ -1,5 +1,5 @@
-modLoader="javafml"
-loaderVersion="[26,)"
+modLoader="kotlinforforge"
+loaderVersion="[1.15,)"
 license="Creative Commons Attribution-NonCommercial-NoDerivatives 4.0"
 issueTrackerURL="https://github.com/ManApart/Lumberjack/issues"
 
@@ -16,6 +16,6 @@ issueTrackerURL="https://github.com/ManApart/Lumberjack/issues"
 [[dependencies.lumberjack]]
     modId="forge"
     mandatory=true
-    versionRange="[35.1.10,)"
+    versionRange="[36,)"
     ordering="NONE"
     side="BOTH"
