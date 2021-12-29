@@ -1,12 +1,14 @@
 package org.manapart.lumberjack
 
-import net.minecraft.util.math.BlockPos
-import net.minecraft.world.IWorld
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.LevelAccessor
+
 
 private const val RADIUS = 5
 private const val DIAMETER = RADIUS * 2 + 1
 
-class ColumnFinder(private val source: BlockPos, private val world: IWorld) {
+class ColumnFinder(private val source: BlockPos, private val world: LevelAccessor) {
     fun findColumns(): ArrayList<BlockPos> {
         val baseBlocks = getBaseBlocks()
         denoteTrunks(baseBlocks)

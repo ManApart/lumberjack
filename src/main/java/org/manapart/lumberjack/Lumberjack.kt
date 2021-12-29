@@ -1,18 +1,17 @@
 package org.manapart.lumberjack
 
-import net.minecraft.block.Block
-import net.minecraft.block.BlockState
-import net.minecraft.entity.item.ItemEntity
-import net.minecraft.entity.player.PlayerEntity
-import net.minecraft.item.ItemStack
-import net.minecraft.loot.LootContext
-import net.minecraft.loot.LootParameters
-import net.minecraft.util.math.BlockPos
-import net.minecraft.util.math.vector.Vector3d
-import net.minecraft.world.IWorld
-import net.minecraft.world.World
-import net.minecraft.world.server.ServerWorld
-import net.minecraftforge.common.ToolType
+import net.minecraft.core.BlockPos
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.entity.item.ItemEntity
+import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.state.BlockState
+import net.minecraft.world.level.storage.loot.LootContext
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams
+import net.minecraft.world.phys.Vec3
+import net.minecraftforge.common.ToolActions
 import net.minecraftforge.event.world.BlockEvent.BreakEvent
 import net.minecraftforge.fml.common.Mod
 import org.apache.logging.log4j.LogManager
@@ -31,22 +30,22 @@ object Lumberjack {
         if (shouldFellTrees(event.player)) {
             if (isLog(block)) {
                 log.info(event.player.name.contents.toString() + " broke " + block + " at " + event.pos)
-                fellLogs(event.pos, event.world, event.player.mainHandItem)
+                fellLogs(event.pos, event.world as Level, event.player.mainHandItem)
             }
         }
     }
 
-    private fun shouldFellTrees(player: PlayerEntity): Boolean {
-        return !player.isCrouching && player.mainHandItem.item.getToolTypes(player.mainHandItem).contains(ToolType.AXE)
+    private fun shouldFellTrees(player: Player): Boolean {
+        return !player.isCrouching && player.mainHandItem.item.canPerformAction(player.mainHandItem, ToolActions.AXE_DIG)
     }
 
-    private fun fellLogs(sourcePosition: BlockPos, world: IWorld, tool: ItemStack) {
+    private fun fellLogs(sourcePosition: BlockPos, world: Level, tool: ItemStack) {
         val finder = ColumnFinder(sourcePosition, world)
         val columns = finder.findColumns()
         chopColumns(columns, 1, world, tool)
     }
 
-    private fun chopColumns(columns: ArrayList<BlockPos>, y: Int, world: IWorld, tool: ItemStack) {
+    private fun chopColumns(columns: ArrayList<BlockPos>, y: Int, world: Level, tool: ItemStack) {
         var atLeastOneBlockHarvested = false
         for (column in columns) {
             val pos = column.offset(0, y, 0)
@@ -62,12 +61,12 @@ object Lumberjack {
         }
     }
 
-    private fun dropBlock(world: IWorld, pos: BlockPos, state: BlockState, tool: ItemStack) {
-        if (world is ServerWorld) {
-            val origin = Vector3d.atCenterOf(pos)
+    private fun dropBlock(world: Level, pos: BlockPos, state: BlockState, tool: ItemStack) {
+        if (world is ServerLevel) {
+            val origin = Vec3.atCenterOf(pos)
             val lootContext = LootContext.Builder(world)
-                .withParameter(LootParameters.TOOL, tool)
-                .withParameter(LootParameters.ORIGIN, origin)
+                .withParameter(LootContextParams.TOOL, tool)
+                .withParameter(LootContextParams.ORIGIN, origin)
 
             val drops = state.getDrops(lootContext).filterNotNull()
             world.removeBlock(pos, false)
@@ -77,9 +76,9 @@ object Lumberjack {
         }
     }
 
-    private fun dropItems(world: IWorld, pos: BlockPos, drops: List<ItemStack>) {
+    private fun dropItems(world: Level, pos: BlockPos, drops: List<ItemStack>) {
         drops.forEach { drop ->
-            val dropItem = ItemEntity(world as World, pos.x.toDouble() + 0.5, pos.y.toDouble() + 0.5, pos.z.toDouble() + 0.5, drop)
+            val dropItem = ItemEntity(world, pos.x.toDouble() + 0.5, pos.y.toDouble() + 0.5, pos.z.toDouble() + 0.5, drop)
             world.addFreshEntity(dropItem)
         }
     }
