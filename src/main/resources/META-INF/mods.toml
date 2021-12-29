@@ -16,6 +16,6 @@ issueTrackerURL="https://github.com/ManApart/Lumberjack/issues"
 [[dependencies.lumberjack]]
     modId="forge"
     mandatory=true
-    versionRange="[36,)"
+    versionRange="[39,)"
     ordering="NONE"
     side="BOTH"
