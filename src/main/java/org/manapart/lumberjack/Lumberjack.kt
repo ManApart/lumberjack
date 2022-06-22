@@ -94,7 +94,5 @@ fun isLeaves(block: Block): Boolean {
 }
 
 private fun isType(block: Block, type: String): Boolean {
-    return if (block.registryName != null) {
-        block.registryName!!.path.toLowerCase().contains(type)
-    } else false
+    return block.descriptionId.lowercase().contains(type)
 }
