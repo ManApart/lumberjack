@@ -1,7 +1,6 @@
 buildscript {
     repositories {
         maven { url = 'https://files.minecraftforge.net/maven' }
-        jcenter()
         mavenCentral()
     }
     dependencies {
@@ -57,7 +56,7 @@ repositories {
 
 dependencies {
     minecraft 'net.minecraftforge:forge:' + minecraft_version + '-' + forge_version
-    implementation 'thedarkcolour:kotlinforforge:1.15.0'
+    implementation 'thedarkcolour:kotlinforforge:3.6.0'
 }
 
 jar {
