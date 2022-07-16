@@ -12,7 +12,7 @@ import net.minecraft.world.level.storage.loot.LootContext
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.common.ToolActions
-import net.minecraftforge.event.world.BlockEvent.BreakEvent
+import net.minecraftforge.event.level.BlockEvent
 import net.minecraftforge.fml.common.Mod
 import org.apache.logging.log4j.LogManager
 import thedarkcolour.kotlinforforge.forge.FORGE_BUS
@@ -25,12 +25,12 @@ object Lumberjack {
         FORGE_BUS.addListener(::onBreak)
     }
 
-    private fun onBreak(event: BreakEvent) {
+    private fun onBreak(event: BlockEvent.BreakEvent) {
         val block = event.state.block
         if (shouldFellTrees(event.player)) {
             if (isLog(block)) {
                 log.info(event.player.name.contents.toString() + " broke " + block + " at " + event.pos)
-                fellLogs(event.pos, event.world as Level, event.player.mainHandItem)
+                fellLogs(event.pos, event.level as Level, event.player.mainHandItem)
             }
         }
     }
