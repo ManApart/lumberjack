@@ -9,6 +9,7 @@ import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.storage.loot.LootContext
+import net.minecraft.world.level.storage.loot.LootParams
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams
 import net.minecraft.world.phys.Vec3
 import net.minecraftforge.common.ToolActions
@@ -64,7 +65,7 @@ object Lumberjack {
     private fun dropBlock(world: Level, pos: BlockPos, state: BlockState, tool: ItemStack) {
         if (world is ServerLevel) {
             val origin = Vec3.atCenterOf(pos)
-            val lootContext = LootContext.Builder(world)
+            val lootContext = LootParams.Builder(world)
                 .withParameter(LootContextParams.TOOL, tool)
                 .withParameter(LootContextParams.ORIGIN, origin)
 
