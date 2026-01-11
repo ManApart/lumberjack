@@ -1,6 +1,7 @@
 package org.manapart.lumberjack
 
 import net.fabricmc.api.ModInitializer
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents
 import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.item.ItemEntity
@@ -18,7 +19,9 @@ object Lumberjack : ModInitializer {
     private val log = LoggerFactory.getLogger("lumberjack")
 
     override fun onInitialize() {
-        log.info("Hello Fabric world!")
+        PlayerBlockBreakEvents.AFTER.register { level, player, pos, state, entity ->
+            println("Player Broke Block Default")
+        }
     }
 
 //    private fun onBreak(event: BlockEvent.BreakEvent) {
