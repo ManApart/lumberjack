@@ -1,7 +1,6 @@
 package org.manapart.lumberjack
 
 import net.minecraft.core.BlockPos
-import net.minecraft.world.level.Level
 import net.minecraft.world.level.LevelAccessor
 
 

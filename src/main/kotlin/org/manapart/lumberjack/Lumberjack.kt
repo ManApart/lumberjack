@@ -1,5 +1,6 @@
 package org.manapart.lumberjack
 
+import net.fabricmc.api.ModInitializer
 import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.item.ItemEntity
@@ -8,36 +9,31 @@ import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
-import net.minecraft.world.level.storage.loot.LootContext
 import net.minecraft.world.level.storage.loot.LootParams
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams
 import net.minecraft.world.phys.Vec3
-import net.minecraftforge.common.ToolActions
-import net.minecraftforge.event.level.BlockEvent
-import net.minecraftforge.fml.common.Mod
-import org.apache.logging.log4j.LogManager
-import thedarkcolour.kotlinforforge.forge.FORGE_BUS
+import org.slf4j.LoggerFactory
 
-@Mod("lumberjack")
-object Lumberjack {
-    private val log = LogManager.getLogger()
+object Lumberjack : ModInitializer {
+    private val log = LoggerFactory.getLogger("lumberjack")
 
-    init {
-        FORGE_BUS.addListener(::onBreak)
+    override fun onInitialize() {
+        log.info("Hello Fabric world!")
     }
 
-    private fun onBreak(event: BlockEvent.BreakEvent) {
-        val block = event.state.block
-        if (shouldFellTrees(event.player)) {
-            if (isLog(block)) {
-                log.info(event.player.name.contents.toString() + " broke " + block + " at " + event.pos)
-                fellLogs(event.pos, event.level as Level, event.player.mainHandItem)
-            }
-        }
-    }
+//    private fun onBreak(event: BlockEvent.BreakEvent) {
+//        val block = event.state.block
+//        if (shouldFellTrees(event.player)) {
+//            if (isLog(block)) {
+//                log.info(event.player.name.contents.toString() + " broke " + block + " at " + event.pos)
+//                fellLogs(event.pos, event.level as Level, event.player.mainHandItem)
+//            }
+//        }
+//    }
 
     private fun shouldFellTrees(player: Player): Boolean {
-        return !player.isCrouching && player.mainHandItem.item.canPerformAction(player.mainHandItem, ToolActions.AXE_DIG)
+//        return !player.isCrouching && player.mainHandItem.item.canPerformAction(player.mainHandItem, ToolActions.AXE_DIG)
+        return false
     }
 
     private fun fellLogs(sourcePosition: BlockPos, world: Level, tool: ItemStack) {
