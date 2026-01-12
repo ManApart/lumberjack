@@ -6,9 +6,11 @@ import net.minecraft.core.BlockPos
 import net.minecraft.server.level.ServerLevel
 import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.entity.player.Player
+import net.minecraft.world.item.AxeItem
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
 import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockState
 import net.minecraft.world.level.storage.loot.LootParams
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams
@@ -19,24 +21,20 @@ object Lumberjack : ModInitializer {
     private val log = LoggerFactory.getLogger("lumberjack")
 
     override fun onInitialize() {
-        PlayerBlockBreakEvents.AFTER.register { level, player, pos, state, entity ->
-            println("Player Broke Block Default")
+        PlayerBlockBreakEvents.AFTER.register(::onBreak)
+    }
+
+    private fun onBreak(level: Level, player: Player, pos: BlockPos, state: BlockState, entity: BlockEntity?) {
+        if (shouldFellTrees(player)) {
+            if (isLog(state.block)) {
+                log.info(player.name.contents.toString() + " broke " + state.block + " at " + pos)
+                fellLogs(pos, level, player.mainHandItem)
+            }
         }
     }
 
-//    private fun onBreak(event: BlockEvent.BreakEvent) {
-//        val block = event.state.block
-//        if (shouldFellTrees(event.player)) {
-//            if (isLog(block)) {
-//                log.info(event.player.name.contents.toString() + " broke " + block + " at " + event.pos)
-//                fellLogs(event.pos, event.level as Level, event.player.mainHandItem)
-//            }
-//        }
-//    }
-
     private fun shouldFellTrees(player: Player): Boolean {
-//        return !player.isCrouching && player.mainHandItem.item.canPerformAction(player.mainHandItem, ToolActions.AXE_DIG)
-        return false
+        return !player.isCrouching && player.mainHandItem.item is AxeItem
     }
 
     private fun fellLogs(sourcePosition: BlockPos, world: Level, tool: ItemStack) {
@@ -45,7 +43,7 @@ object Lumberjack : ModInitializer {
         chopColumns(columns, 1, world, tool)
     }
 
-    private fun chopColumns(columns: ArrayList<BlockPos>, y: Int, world: Level, tool: ItemStack) {
+    private fun chopColumns(columns: List<BlockPos>, y: Int, world: Level, tool: ItemStack) {
         var atLeastOneBlockHarvested = false
         for (column in columns) {
             val pos = column.offset(0, y, 0)

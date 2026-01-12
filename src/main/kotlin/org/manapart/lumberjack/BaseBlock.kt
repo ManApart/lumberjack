@@ -3,7 +3,7 @@ package org.manapart.lumberjack
 import kotlin.math.pow
 import kotlin.math.sqrt
 
-class BaseBlock(val localX: Int, val localZ: Int, val worldX: Int, val worldZ: Int, val isTree: Boolean) {
+data class BaseBlock(val localX: Int, val localZ: Int, val worldX: Int, val worldZ: Int, val isTree: Boolean, val id: String) {
     var isTrunk = false
     private var isHarvestable = false
 

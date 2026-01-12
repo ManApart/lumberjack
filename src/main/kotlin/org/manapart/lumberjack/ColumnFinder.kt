@@ -2,13 +2,14 @@ package org.manapart.lumberjack
 
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.LevelAccessor
+import net.minecraft.world.level.chunk.LightChunk
 
 
-private const val RADIUS = 5
+private const val RADIUS = 3
 private const val DIAMETER = RADIUS * 2 + 1
 
 class ColumnFinder(private val source: BlockPos, private val world: LevelAccessor) {
-    fun findColumns(): ArrayList<BlockPos> {
+    fun findColumns(): List<BlockPos> {
         val baseBlocks = getBaseBlocks()
         denoteTrunks(baseBlocks)
         denoteHarvestableBlocks(baseBlocks)
@@ -22,7 +23,7 @@ class ColumnFinder(private val source: BlockPos, private val world: LevelAccesso
                 val pos = source.offset(x - RADIUS, 0, z - RADIUS)
                 val block = world.getBlockState(pos).block
                 val isLog = isLog(block)
-                baseBlocks[x][z] = BaseBlock(x, z, pos.x, pos.z, isLog)
+                baseBlocks[x][z] = BaseBlock(x, z, pos.x, pos.z, isLog, block.descriptionId)
                 if (!isLog) {
                     baseBlocks[x][z]!!.isTrunk = false
                 }
@@ -35,7 +36,7 @@ class ColumnFinder(private val source: BlockPos, private val world: LevelAccesso
         val open = ArrayList<BaseBlock?>()
         val closed = HashSet<BaseBlock>()
         open.add(baseBlocks[RADIUS][RADIUS])
-        while (open.size > 0) {
+        while (open.isNotEmpty()) {
             val current = open[open.size - 1]
             open.remove(current)
             if (current != null && !closed.contains(current)) {
@@ -56,9 +57,9 @@ class ColumnFinder(private val source: BlockPos, private val world: LevelAccesso
     }
 
     private fun denoteHarvestableBlocks(baseBlocks: Array<Array<BaseBlock?>>) {
-        val trunks = ArrayList<BaseBlock?>()
-        val neighbors = ArrayList<BaseBlock?>()
-        val bufferBlocks = ArrayList<BaseBlock?>()
+        val trunks = ArrayList<BaseBlock>()
+        val neighbors = ArrayList<BaseBlock>()
+        val bufferBlocks = ArrayList<BaseBlock>()
         for (x in 0 until DIAMETER) {
             for (z in 0 until DIAMETER) {
                 val block = baseBlocks[x][z]
@@ -77,19 +78,19 @@ class ColumnFinder(private val source: BlockPos, private val world: LevelAccesso
         }
         for (block in bufferBlocks) {
             if (neighbors.isEmpty()) {
-                block!!.setHarvestable(true)
+                block.setHarvestable(true)
             } else {
                 val trunkDistance = getMinDistance(block, trunks)
                 val neighborDistance = getMinDistance(block, neighbors)
-                block!!.setHarvestable(trunkDistance <= neighborDistance)
+                block.setHarvestable(trunkDistance <= neighborDistance)
             }
         }
     }
 
-    private fun getMinDistance(block: BaseBlock?, blocks: ArrayList<BaseBlock?>): Int {
+    private fun getMinDistance(block: BaseBlock, blocks: ArrayList<BaseBlock>): Int {
         var min = DIAMETER
         for (other in blocks) {
-            val dist = block!!.getDistance(other!!)
+            val dist = block.getDistance(other)
             if (dist < min) {
                 min = dist
             }
@@ -97,16 +98,8 @@ class ColumnFinder(private val source: BlockPos, private val world: LevelAccesso
         return min
     }
 
-    private fun filterHarvestable(baseBlocks: Array<Array<BaseBlock?>>): ArrayList<BlockPos> {
-        val positions = ArrayList<BlockPos>()
-        for (blocks in baseBlocks) {
-            for (block in blocks) {
-                if (block!!.shouldHarvest()) {
-                    positions.add(BlockPos(block.worldX, source.y, block.worldZ))
-                }
-            }
-        }
-        return positions
+    private fun filterHarvestable(baseBlocks: Array<Array<BaseBlock?>>): List<BlockPos> {
+        return baseBlocks.flatMap { chunk -> chunk.filterNotNull().filter { it.shouldHarvest() } }.map { BlockPos(it.worldX, source.y, it.worldZ) }
     }
 
 }
