@@ -1,4 +1,3 @@
-import io.mockk.mockk
 import net.minecraft.core.BlockPos
 import org.manapart.lumberjack.Lumberjack
 import kotlin.test.Test
@@ -19,7 +18,7 @@ class ChoppingTest {
             intArrayOf(0,1,0),
         ).toWorld()
 
-//        Lumberjack.fellLogs(BlockPos(1,0,0), world, mockk())
+        Lumberjack.fellLogs(BlockPos(1,0,0), world, null)
 
         val actual = state.toGrid()
 
