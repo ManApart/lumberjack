@@ -12,7 +12,7 @@ class ChoppingTest {
 
     @Test
     fun stuff(){
-        val (state, world) = arrayOf(
+        val world = arrayOf(
             intArrayOf(2,2,2),
             intArrayOf(0,1,0),
             intArrayOf(0,1,0),
@@ -20,7 +20,7 @@ class ChoppingTest {
 
         Lumberjack.fellLogs(BlockPos(1,0,0), world, null)
 
-        val actual = state.toGrid()
+        val actual = world.toGrid()
 
         val expected = arrayOf(
             intArrayOf(0,0,0),

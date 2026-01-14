@@ -8,7 +8,7 @@ import net.minecraft.world.level.chunk.LightChunk
 private const val RADIUS = 3
 private const val DIAMETER = RADIUS * 2 + 1
 
-class ColumnFinder(private val source: BlockPos, private val world: LevelAccessor) {
+class ColumnFinder(private val source: BlockPos, private val world: TestableWorld) {
     fun findColumns(): List<BlockPos> {
         val baseBlocks = getBaseBlocks()
         denoteTrunks(baseBlocks)

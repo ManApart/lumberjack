@@ -29,7 +29,7 @@ object Lumberjack : ModInitializer {
         if (shouldFellTrees(player)) {
             if (isLog(state.block)) {
 //                log.info(player.name.contents.toString() + " broke " + state.block + " at " + pos)
-                fellLogs(pos, level, player.mainHandItem)
+                fellLogs(pos, TestableWorld(level), player.mainHandItem)
             }
         }
     }
@@ -38,13 +38,13 @@ object Lumberjack : ModInitializer {
         return !player.isCrouching && player.mainHandItem.item is AxeItem
     }
 
-    fun fellLogs(sourcePosition: BlockPos, world: LevelAccessor, tool: ItemStack?) {
+    fun fellLogs(sourcePosition: BlockPos, world: TestableWorld, tool: ItemStack?) {
         val finder = ColumnFinder(sourcePosition, world)
         val columns = finder.findColumns()
         chopColumns(columns, 1, world, tool)
     }
 
-    private fun chopColumns(columns: List<BlockPos>, y: Int, world: LevelAccessor, tool: ItemStack?) {
+    private fun chopColumns(columns: List<BlockPos>, y: Int, world: TestableWorld, tool: ItemStack?) {
         var atLeastOneBlockHarvested = false
         for (column in columns) {
             val pos = column.offset(0, y, 0)
@@ -60,20 +60,22 @@ object Lumberjack : ModInitializer {
         }
     }
 
-    private fun dropBlock(world: LevelAccessor, pos: BlockPos, state: BlockState, tool: ItemStack?) {
-        if (world is ServerLevel) {
+    private fun dropBlock(world: TestableWorld, pos: BlockPos, state: BlockState, tool: ItemStack?) {
+        if (world.level != null && world.level is ServerLevel) {
             val origin = Vec3.atCenterOf(pos)
             world.removeBlock(pos, false)
             if (tool != null) {
-                val lootContext = LootParams.Builder(world)
+                val lootContext = LootParams.Builder(world.level)
                     .withParameter(LootContextParams.TOOL, tool)
                     .withParameter(LootContextParams.ORIGIN, origin)
 
                 val drops = state.getDrops(lootContext).filterNotNull()
                 if (drops.isNotEmpty()) {
-                    dropItems(world, pos, drops)
+                    dropItems(world.level, pos, drops)
                 }
             }
+        } else {
+            world.removeBlock(pos, false)
         }
     }
 

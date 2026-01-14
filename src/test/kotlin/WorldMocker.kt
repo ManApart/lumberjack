@@ -1,20 +1,35 @@
-import io.mockk.mockk
-import net.minecraft.world.level.LevelAccessor
+import net.minecraft.core.BlockPos
+import net.minecraft.world.level.block.Block
+import net.minecraft.world.level.block.state.BlockBehaviour.Properties
+import net.minecraft.world.level.block.state.BlockState
+import org.manapart.lumberjack.FakeWorldShim
+import org.manapart.lumberjack.TestableWorld
 
 enum class FakeBlockType(val blockId: String, val gridId: Int) { AIR("air", 0), LOG("log", 1), LEAF("leaves", 2) }
 
 //Grid only tracks x and y(vertical). Z is ignored
 typealias X = Int
 typealias Y = Int
-typealias FakeWorld = MutableMap<X, MutableMap<Y, FakeBlockType>>
+class FakeWorld : FakeWorldShim {
+    private val data = mutableMapOf<X, MutableMap<Y, FakeBlockType>>()
+    override fun removeBlock(blockPos: BlockPos) {
 
+    }
 
-fun Array<IntArray>.toWorld(): Pair<FakeWorld, LevelAccessor> {
-    val level = mockk<LevelAccessor>()
-    val fakeWorld = mutableMapOf<X, MutableMap<Y, FakeBlockType>>()
-    return fakeWorld to level
+    override fun getBlockState(blockPos: BlockPos): BlockState {
+//        fakeWorld!!.get(pos.x)[pos.y]
+        return Block(Properties.of()).defaultBlockState()
+    }
 }
 
-fun FakeWorld.toGrid(): Array<IntArray> {
+fun Array<IntArray>.toWorld(): TestableWorld {
+    val fakeWorld = FakeWorld()
+
+    return TestableWorld()
+}
+
+fun TestableWorld.toGrid(): Array<IntArray> {
     return arrayOf()
 }
+
+class FakeBlock : Block(Properties.of())
