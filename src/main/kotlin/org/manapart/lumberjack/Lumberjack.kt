@@ -9,6 +9,7 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.AxeItem
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
+import net.minecraft.world.level.LevelAccessor
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockState
@@ -27,7 +28,7 @@ object Lumberjack : ModInitializer {
     private fun onBreak(level: Level, player: Player, pos: BlockPos, state: BlockState, entity: BlockEntity?) {
         if (shouldFellTrees(player)) {
             if (isLog(state.block)) {
-                log.info(player.name.contents.toString() + " broke " + state.block + " at " + pos)
+//                log.info(player.name.contents.toString() + " broke " + state.block + " at " + pos)
                 fellLogs(pos, level, player.mainHandItem)
             }
         }
@@ -37,13 +38,13 @@ object Lumberjack : ModInitializer {
         return !player.isCrouching && player.mainHandItem.item is AxeItem
     }
 
-    private fun fellLogs(sourcePosition: BlockPos, world: Level, tool: ItemStack) {
+    fun fellLogs(sourcePosition: BlockPos, world: LevelAccessor, tool: ItemStack) {
         val finder = ColumnFinder(sourcePosition, world)
         val columns = finder.findColumns()
         chopColumns(columns, 1, world, tool)
     }
 
-    private fun chopColumns(columns: List<BlockPos>, y: Int, world: Level, tool: ItemStack) {
+    private fun chopColumns(columns: List<BlockPos>, y: Int, world: LevelAccessor, tool: ItemStack) {
         var atLeastOneBlockHarvested = false
         for (column in columns) {
             val pos = column.offset(0, y, 0)
@@ -59,7 +60,7 @@ object Lumberjack : ModInitializer {
         }
     }
 
-    private fun dropBlock(world: Level, pos: BlockPos, state: BlockState, tool: ItemStack) {
+    private fun dropBlock(world: LevelAccessor, pos: BlockPos, state: BlockState, tool: ItemStack) {
         if (world is ServerLevel) {
             val origin = Vec3.atCenterOf(pos)
             val lootContext = LootParams.Builder(world)

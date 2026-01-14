@@ -40,6 +40,9 @@ dependencies {
 	// Fabric API. This is technically optional, but you probably want it anyway.
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 	modImplementation "net.fabricmc:fabric-language-kotlin:${project.fabric_kotlin_version}"
+
+	testImplementation "io.mockk:mockk:1.14.7"
+	testImplementation "org.jetbrains.kotlin:kotlin-test:2.3.0"
 }
 
 processResources {
@@ -76,6 +79,10 @@ jar {
 	from("LICENSE") {
 		rename { "${it}_${inputs.properties.archivesName}"}
 	}
+}
+
+test {
+	jvmArgs "-Dnet.bytebuddy.experimental=true"
 }
 
 // configure the maven publication
