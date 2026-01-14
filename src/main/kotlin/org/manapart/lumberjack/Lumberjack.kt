@@ -9,7 +9,6 @@ import net.minecraft.world.entity.player.Player
 import net.minecraft.world.item.AxeItem
 import net.minecraft.world.item.ItemStack
 import net.minecraft.world.level.Level
-import net.minecraft.world.level.LevelAccessor
 import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.entity.BlockEntity
 import net.minecraft.world.level.block.state.BlockState
@@ -27,7 +26,7 @@ object Lumberjack : ModInitializer {
 
     private fun onBreak(level: Level, player: Player, pos: BlockPos, state: BlockState, entity: BlockEntity?) {
         if (shouldFellTrees(player)) {
-            if (isLog(state.block)) {
+            if (state.block.isLog()) {
 //                log.info(player.name.contents.toString() + " broke " + state.block + " at " + pos)
                 fellLogs(pos, TestableWorld(level), player.mainHandItem)
             }
@@ -48,10 +47,8 @@ object Lumberjack : ModInitializer {
         var atLeastOneBlockHarvested = false
         for (column in columns) {
             val pos = column.offset(0, y, 0)
-            val blockState = world.getBlockState(pos)
-            val block = blockState.block
-            if (isLog(block) || isLeaves(block)) {
-                dropBlock(world, pos, blockState, tool)
+            if (world.isLog(pos) || world.isLeaves(pos)) {
+                dropBlock(world, pos, tool)
                 atLeastOneBlockHarvested = true
             }
         }
@@ -60,7 +57,7 @@ object Lumberjack : ModInitializer {
         }
     }
 
-    private fun dropBlock(world: TestableWorld, pos: BlockPos, state: BlockState, tool: ItemStack?) {
+    private fun dropBlock(world: TestableWorld, pos: BlockPos, tool: ItemStack?) {
         if (world.level != null && world.level is ServerLevel) {
             val origin = Vec3.atCenterOf(pos)
             world.removeBlock(pos, false)
@@ -69,7 +66,7 @@ object Lumberjack : ModInitializer {
                     .withParameter(LootContextParams.TOOL, tool)
                     .withParameter(LootContextParams.ORIGIN, origin)
 
-                val drops = state.getDrops(lootContext).filterNotNull()
+                val drops = world.level.getBlockState(pos).getDrops(lootContext).filterNotNull()
                 if (drops.isNotEmpty()) {
                     dropItems(world.level, pos, drops)
                 }
@@ -88,12 +85,12 @@ object Lumberjack : ModInitializer {
 
 }
 
-fun isLog(block: Block): Boolean {
-    return isType(block, "log")
+fun Block.isLog(): Boolean {
+    return isType(this, "log")
 }
 
-fun isLeaves(block: Block): Boolean {
-    return isType(block, "leaves")
+fun Block.isLeaves(): Boolean {
+    return isType(this, "leaves")
 }
 
 private fun isType(block: Block, type: String): Boolean {

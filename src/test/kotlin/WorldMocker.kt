@@ -1,7 +1,5 @@
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.state.BlockBehaviour.Properties
-import net.minecraft.world.level.block.state.BlockState
 import org.manapart.lumberjack.FakeWorldShim
 import org.manapart.lumberjack.TestableWorld
 
@@ -12,20 +10,23 @@ typealias X = Int
 typealias Y = Int
 class FakeWorld : FakeWorldShim {
     private val data = mutableMapOf<X, MutableMap<Y, FakeBlockType>>()
-    override fun removeBlock(blockPos: BlockPos) {
-
+    override fun isLog(pos: BlockPos): Boolean {
+        return false
     }
 
-    override fun getBlockState(blockPos: BlockPos): BlockState {
-//        fakeWorld!!.get(pos.x)[pos.y]
-        return Block(Properties.of()).defaultBlockState()
+    override fun isLeaves(pos: BlockPos): Boolean {
+        return false
+    }
+
+    override fun removeBlock(blockPos: BlockPos) {
+
     }
 }
 
 fun Array<IntArray>.toWorld(): TestableWorld {
     val fakeWorld = FakeWorld()
 
-    return TestableWorld()
+    return TestableWorld(fakeWorld = fakeWorld)
 }
 
 fun TestableWorld.toGrid(): Array<IntArray> {

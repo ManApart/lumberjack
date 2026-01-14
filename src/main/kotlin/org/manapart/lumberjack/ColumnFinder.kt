@@ -21,9 +21,8 @@ class ColumnFinder(private val source: BlockPos, private val world: TestableWorl
         for (x in 0 until DIAMETER) {
             for (z in 0 until DIAMETER) {
                 val pos = source.offset(x - RADIUS, 0, z - RADIUS)
-                val block = world.getBlockState(pos).block
-                val isLog = isLog(block)
-                baseBlocks[x][z] = BaseBlock(x, z, pos.x, pos.z, isLog, block.descriptionId)
+                val isLog = world.isLog(pos)
+                baseBlocks[x][z] = BaseBlock(x, z, pos.x, pos.z, isLog)
                 if (!isLog) {
                     baseBlocks[x][z]!!.isTrunk = false
                 }

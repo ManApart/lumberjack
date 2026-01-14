@@ -6,13 +6,18 @@ import net.minecraft.world.level.block.Block
 import net.minecraft.world.level.block.state.BlockState
 
 interface FakeWorldShim {
+    fun isLog(pos: BlockPos): Boolean
+    fun isLeaves(pos: BlockPos): Boolean
     fun removeBlock(blockPos: BlockPos)
-    fun getBlockState(blockPos: BlockPos): BlockState
 }
 
 class TestableWorld(val level: LevelAccessor? = null, val fakeWorld: FakeWorldShim? = null) {
-    fun getBlockState(pos: BlockPos): BlockState {
-        return level?.getBlockState(pos) ?: fakeWorld!!.getBlockState(pos)
+    fun isLog(pos: BlockPos): Boolean {
+        return level?.getBlockState(pos)?.block?.isLog() ?: fakeWorld!!.isLog(pos)
+    }
+
+    fun isLeaves(pos: BlockPos): Boolean {
+        return level?.getBlockState(pos)?.block?.isLeaves() ?: fakeWorld!!.isLeaves(pos)
     }
 
     fun removeBlock(pos: BlockPos, thing: Boolean) {
