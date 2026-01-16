@@ -2,13 +2,11 @@ package org.manapart.lumberjack
 
 import net.minecraft.core.BlockPos
 import net.minecraft.world.level.LevelAccessor
-import net.minecraft.world.level.block.Block
-import net.minecraft.world.level.block.state.BlockState
 
 interface FakeWorldShim {
     fun isLog(pos: BlockPos): Boolean
     fun isLeaves(pos: BlockPos): Boolean
-    fun removeBlock(blockPos: BlockPos)
+    fun removeBlock(pos: BlockPos)
 }
 
 class TestableWorld(val level: LevelAccessor? = null, val fakeWorld: FakeWorldShim? = null) {
