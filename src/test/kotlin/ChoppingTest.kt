@@ -32,13 +32,26 @@ class ChoppingTest {
             intArrayOf(0, 1, 0),
         ).toWorld()
 
-        val expected = arrayOf(
-            intArrayOf(0, 0, 0),
-            intArrayOf(0, 0, 0),
-            intArrayOf(0, 0, 0),
-        )
+        val expected = airGrid(3,3)
 
         Lumberjack.fellLogs(BlockPos(1, 0, 0), world, null)
+        assertEquals(expected.toTestString(), world.toGrid().toTestString())
+    }
+
+    @Test
+    fun chopOuterLeavesBirch() {
+        val world = arrayOf(
+            intArrayOf(2, 2, 2, 2, 2),
+            intArrayOf(2, 2, 1, 2, 2),
+            intArrayOf(2, 2, 1, 2, 2),
+            intArrayOf(0, 0, 1, 0, 0),
+            intArrayOf(0, 0, 1, 0, 0),
+            intArrayOf(0, 0, 1, 0, 0),
+        ).toWorld()
+
+        val expected = airGrid(5,6)
+
+        Lumberjack.fellLogs(BlockPos(2, 0, 0), world, null)
         assertEquals(expected.toTestString(), world.toGrid().toTestString())
     }
 
@@ -69,12 +82,7 @@ class ChoppingTest {
             intArrayOf(0, 1, 0),
         ).toWorld()
 
-        val expected = arrayOf(
-            intArrayOf(0, 0, 0),
-            intArrayOf(0, 0, 0),
-            intArrayOf(0, 0, 0),
-            intArrayOf(0, 0, 0),
-        )
+        val expected = airGrid(3,4)
 
         Lumberjack.fellLogs(BlockPos(1, 0, 0), world, null)
         assertEquals(expected.toTestString(), world.toGrid().toTestString())
@@ -89,7 +97,7 @@ class ChoppingTest {
         ).toWorld()
 
         val expected = arrayOf(
-            intArrayOf(0, 0, 0, 2, 2, 2),
+            intArrayOf(0, 0, 0, 0, 2, 2),
             intArrayOf(0, 0, 0, 0, 1, 0),
             intArrayOf(0, 0, 0, 0, 1, 0),
         )
@@ -114,6 +122,10 @@ class ChoppingTest {
 
         Lumberjack.fellLogs(BlockPos(1, 0, 0), world, null)
         assertEquals(expected.toTestString(), world.toGrid().toTestString())
+    }
+
+    private fun airGrid(x: Int, y: Int): Array<IntArray>{
+        return (0..<y).map { IntArray(x) }.toTypedArray()
     }
 
 }

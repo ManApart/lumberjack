@@ -19,24 +19,32 @@ fun climbTree(world: TestableWorld, source: BlockPos): Pair<Logs, Leaves> {
     val open = mutableSetOf<BlockPos>()
     val closed = mutableSetOf<BlockPos>()
     logs.add(source)
-    open.addAll(get3x3Grid(source.x, source.y + 1, source.z))
+    open.addAll(get3x3Layer(source.x, source.y + 1, source.z))
     while (open.isNotEmpty()) {
         val current = open.last()
         open.remove(current)
         if (!closed.contains(current)) {
             if (world.isLog(current)) {
                 logs.add(current)
-                open.addAll(get3x3Grid(current.x, current.y + 1, current.z))
+                open.addAll(get3x3Layer(current.x, current.y + 1, current.z))
             }
 
             if (world.isLeaves(current)) {
                 leaves.add(current)
-                open.addAll(get3x3Grid(current.x, current.y + 1, current.z))
+                open.addAll(get3x3Layer(current.x, current.y + 1, current.z))
+                //Get any neighbor leaves, but don't build off of them
+                get3x3Layer(current.x, current.y, current.z).forEach { n ->
+                    if (!closed.contains(n)) {
+                        if (world.isLeaves(n)) {
+                            leaves.add(n)
+                            closed.add(n)
+                        }
+                    }
+                }
             }
             closed.add(current)
         }
     }
-
     return logs to leaves
 }
 
@@ -48,7 +56,8 @@ fun chopTree(world: TestableWorld, logs: Logs, leaves: Leaves, tool: ItemStack?)
 
 //If any neighbor is a foreign log, don't drop
 private fun BlockPos.shouldDrop(world: TestableWorld, logs: Logs): Boolean {
-    return get3x3Grid(x,y,z).none { n -> !logs.contains(n) && world.isLog(n) }
+    val neighbors = listOf(BlockPos(x, y - 1, z)) + get3x3Layer(x, y, z)
+    return neighbors.none { n -> !logs.contains(n) && world.isLog(n) }
 }
 
 fun removeBlockFromLevel(level: LevelAccessor, pos: BlockPos, tool: ItemStack?) {
@@ -75,7 +84,7 @@ private fun dropItems(world: Level, pos: BlockPos, drops: List<ItemStack>) {
     }
 }
 
-private fun get3x3Grid(x: Int, y: Int, z: Int): List<BlockPos> {
+private fun get3x3Layer(x: Int, y: Int, z: Int): List<BlockPos> {
     return listOf(
         BlockPos(x - 1, y, z),
         BlockPos(x, y, z),
