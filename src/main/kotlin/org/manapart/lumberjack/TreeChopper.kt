@@ -1,7 +1,14 @@
 package org.manapart.lumberjack
 
 import net.minecraft.core.BlockPos
+import net.minecraft.server.level.ServerLevel
+import net.minecraft.world.entity.item.ItemEntity
 import net.minecraft.world.item.ItemStack
+import net.minecraft.world.level.Level
+import net.minecraft.world.level.LevelAccessor
+import net.minecraft.world.level.storage.loot.LootParams
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams
+import net.minecraft.world.phys.Vec3
 
 typealias Logs = Set<BlockPos>
 typealias Leaves = Set<BlockPos>
@@ -42,6 +49,30 @@ fun chopTree(world: TestableWorld, logs: Logs, leaves: Leaves, tool: ItemStack?)
 //If any neighbor is a foreign log, don't drop
 private fun BlockPos.shouldDrop(world: TestableWorld, logs: Logs): Boolean {
     return get3x3Grid(x,y,z).none { n -> !logs.contains(n) && world.isLog(n) }
+}
+
+fun removeBlockFromLevel(level: LevelAccessor, pos: BlockPos, tool: ItemStack?) {
+    if (level is ServerLevel) {
+        val origin = Vec3.atCenterOf(pos)
+        level.removeBlock(pos, false)
+        if (tool != null) {
+            val lootContext = LootParams.Builder(level)
+                .withParameter(LootContextParams.TOOL, tool)
+                .withParameter(LootContextParams.ORIGIN, origin)
+
+            val drops = level.getBlockState(pos).getDrops(lootContext).filterNotNull()
+            if (drops.isNotEmpty()) {
+                dropItems(level, pos, drops)
+            }
+        }
+    }
+}
+
+private fun dropItems(world: Level, pos: BlockPos, drops: List<ItemStack>) {
+    drops.forEach { drop ->
+        val dropItem = ItemEntity(world, pos.x.toDouble() + 0.5, pos.y.toDouble() + 0.5, pos.z.toDouble() + 0.5, drop)
+        world.addFreshEntity(dropItem)
+    }
 }
 
 private fun get3x3Grid(x: Int, y: Int, z: Int): List<BlockPos> {
