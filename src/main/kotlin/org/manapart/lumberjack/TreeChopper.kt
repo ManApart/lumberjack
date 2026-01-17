@@ -63,7 +63,6 @@ private fun BlockPos.shouldDrop(world: TestableWorld, logs: Logs): Boolean {
 fun removeBlockFromLevel(level: LevelAccessor, pos: BlockPos, tool: ItemStack?) {
     if (level is ServerLevel) {
         val origin = Vec3.atCenterOf(pos)
-        level.removeBlock(pos, false)
         if (tool != null) {
             val lootContext = LootParams.Builder(level)
                 .withParameter(LootContextParams.TOOL, tool)
@@ -74,6 +73,7 @@ fun removeBlockFromLevel(level: LevelAccessor, pos: BlockPos, tool: ItemStack?) 
                 dropItems(level, pos, drops)
             }
         }
+        level.removeBlock(pos, false)
     }
 }
 
