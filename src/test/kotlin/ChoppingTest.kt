@@ -32,7 +32,7 @@ class ChoppingTest {
             intArrayOf(0, 1, 0),
         ).toWorld()
 
-        val expected = airGrid(3,3)
+        val expected = airGrid(3, 3)
 
         Lumberjack.fellLogs(BlockPos(1, 0, 0), world, null)
         assertEquals(expected.toTestString(), world.toGrid().toTestString())
@@ -49,7 +49,22 @@ class ChoppingTest {
             intArrayOf(0, 0, 1, 0, 0),
         ).toWorld()
 
-        val expected = airGrid(5,6)
+        val expected = airGrid(5, 6)
+
+        Lumberjack.fellLogs(BlockPos(2, 0, 0), world, null)
+        assertEquals(expected.toTestString(), world.toGrid().toTestString())
+    }
+
+    @Test
+    fun chopBranchesOak() {
+        val world = arrayOf(
+            intArrayOf(2, 2, 1, 2, 2),
+            intArrayOf(1, 1, 1, 1, 1),
+            intArrayOf(0, 0, 1, 0, 0),
+            intArrayOf(0, 0, 1, 0, 0),
+        ).toWorld()
+
+        val expected = airGrid(5, 4)
 
         Lumberjack.fellLogs(BlockPos(2, 0, 0), world, null)
         assertEquals(expected.toTestString(), world.toGrid().toTestString())
@@ -82,7 +97,7 @@ class ChoppingTest {
             intArrayOf(0, 1, 0),
         ).toWorld()
 
-        val expected = airGrid(3,4)
+        val expected = airGrid(3, 4)
 
         Lumberjack.fellLogs(BlockPos(1, 0, 0), world, null)
         assertEquals(expected.toTestString(), world.toGrid().toTestString())
@@ -124,7 +139,7 @@ class ChoppingTest {
         assertEquals(expected.toTestString(), world.toGrid().toTestString())
     }
 
-    private fun airGrid(x: Int, y: Int): Array<IntArray>{
+    private fun airGrid(x: Int, y: Int): Array<IntArray> {
         return (0..<y).map { IntArray(x) }.toTypedArray()
     }
 

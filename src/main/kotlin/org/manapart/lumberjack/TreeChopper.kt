@@ -26,6 +26,7 @@ fun climbTree(world: TestableWorld, source: BlockPos): Pair<Logs, Leaves> {
         if (!closed.contains(current)) {
             if (world.isLog(current)) {
                 logs.add(current)
+                open.addAll(get3x3Layer(current.x, current.y, current.z))
                 open.addAll(get3x3Layer(current.x, current.y + 1, current.z))
             }
 
