@@ -14,14 +14,17 @@ typealias Y = Int
 class FakeWorld : FakeWorldShim {
     private val data = mutableMapOf<X, MutableMap<Y, FakeBlockType>>()
     override fun isLog(pos: BlockPos): Boolean {
+        if (pos.z != 0) return false
         return data[pos.x]?.get(pos.y) == FakeBlockType.LOG
     }
 
     override fun isLeaves(pos: BlockPos): Boolean {
+        if (pos.z != 0) return false
         return data[pos.x]?.get(pos.y) == FakeBlockType.LEAF
     }
 
     override fun removeBlock(pos: BlockPos) {
+        if (pos.z != 0) return
         data[pos.x]?.let { it[pos.y] = FakeBlockType.AIR }
     }
 
@@ -34,16 +37,17 @@ class FakeWorld : FakeWorldShim {
         val maxX = data.keys.size
         val maxY = data[0]?.size ?: 0
         return (0 until maxY).map { y ->
-            (0 until maxX).map { x -> data[x]?.get(y)?.gridId ?: FakeBlockType.AIR.gridId }.toIntArray()
+            (0 until maxX).map { x -> data[x]?.get(maxY-1-y)?.gridId ?: FakeBlockType.AIR.gridId }.toIntArray()
         }.toTypedArray()
     }
 }
 
 fun Array<IntArray>.toWorld(): TestableWorld {
     val fakeWorld = FakeWorld()
+    val maxY = size-1
     forEachIndexed { y, row ->
         row.forEachIndexed { x, type ->
-            fakeWorld.set(x, y, type.toType())
+            fakeWorld.set(x, maxY-y, type.toType())
         }
     }
     return TestableWorld(fakeWorld = fakeWorld)
