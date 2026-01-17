@@ -33,16 +33,70 @@ class ChoppingTest {
             intArrayOf(0, 1, 0),
         ).toWorld()
 
-        Lumberjack.fellLogs(BlockPos(1, 0, 0), world, null)
-        val actual = world.toGrid()
-
         val expected = arrayOf(
             intArrayOf(0, 0, 0),
             intArrayOf(0, 0, 0),
             intArrayOf(0, 0, 0),
         )
 
-        assertEquals(expected.toTestString(), actual.toTestString())
+        Lumberjack.fellLogs(BlockPos(1, 0, 0), world, null)
+        assertEquals(expected.toTestString(), world.toGrid().toTestString())
+    }
+
+    @Test
+    fun tallTree() {
+        val world = arrayOf(
+            intArrayOf(2, 2, 2),
+            intArrayOf(2, 1, 2),
+            intArrayOf(0, 1, 0),
+            intArrayOf(0, 1, 0),
+        ).toWorld()
+
+        val expected = arrayOf(
+            intArrayOf(0, 0, 0),
+            intArrayOf(0, 0, 0),
+            intArrayOf(0, 0, 0),
+            intArrayOf(0, 0, 0),
+        )
+
+        Lumberjack.fellLogs(BlockPos(1, 0, 0), world, null)
+        assertEquals(expected.toTestString(), world.toGrid().toTestString())
+    }
+
+    @Test
+    fun twoTrees() {
+        val world = arrayOf(
+            intArrayOf(2, 2, 2, 2, 2, 2),
+            intArrayOf(0, 1, 0, 0, 1, 0),
+            intArrayOf(0, 1, 0, 0, 1, 0),
+        ).toWorld()
+
+        val expected = arrayOf(
+            intArrayOf(0, 0, 0, 2, 2, 2),
+            intArrayOf(0, 0, 0, 0, 1, 0),
+            intArrayOf(0, 0, 0, 0, 1, 0),
+        )
+
+        Lumberjack.fellLogs(BlockPos(1, 0, 0), world, null)
+        assertEquals(expected.toTestString(), world.toGrid().toTestString())
+    }
+
+    @Test
+    fun tightTrees() {
+        val world = arrayOf(
+            intArrayOf(2, 2, 2, 2, 2),
+            intArrayOf(0, 1, 0, 1, 0),
+            intArrayOf(0, 1, 0, 1, 0),
+        ).toWorld()
+
+        val expected = arrayOf(
+            intArrayOf(0, 0, 0, 2, 2, 2),
+            intArrayOf(0, 0, 0, 0, 1, 0),
+            intArrayOf(0, 0, 0, 0, 1, 0),
+        )
+
+        Lumberjack.fellLogs(BlockPos(1, 0, 0), world, null)
+        assertEquals(expected.toTestString(), world.toGrid().toTestString())
     }
 
 }
