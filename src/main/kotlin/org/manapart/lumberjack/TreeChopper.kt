@@ -11,7 +11,8 @@ fun climbTree(world: TestableWorld, source: BlockPos): Pair<Logs, Leaves> {
     val leaves = mutableSetOf<BlockPos>()
     val open = mutableSetOf<BlockPos>()
     val closed = mutableSetOf<BlockPos>()
-    open.add(source)
+    logs.add(source)
+    open.addAll(get3x3Grid(source.x, source.y + 1, source.z))
     while (open.isNotEmpty()) {
         val current = open.last()
         open.remove(current)
